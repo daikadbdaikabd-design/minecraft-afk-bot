@@ -1,45 +1,54 @@
-const mineflayer = require('mineflayer')
+const mineflayer = require("mineflayer")
+const express = require("express")
 
-function createBot() {
+const app = express()
+
+app.get("/", (req,res)=>{
+  res.send("bot online")
+})
+
+app.listen(3000)
+
+function createBot(){
 
 const bot = mineflayer.createBot({
-  host: 'darkblademc.falix.dev',
+  host: "darkblademc.falix.dev",
   port: 31985,
-  username: 'MeMayBeo',
-  version: false
+  username: "_HuuThien_" + Math.floor(Math.random()*10000),
+  version: "1.20.1"
 })
 
-bot.on('messagestr', (msg) => {
+bot.on("spawn", ()=>{
 
-  // nếu server yêu cầu register
-  if (msg.includes('/register')) {
-    bot.chat('/register bot123 bot123')
-  }
+console.log("bot joined")
 
-  // nếu server yêu cầu login
-  if (msg.includes('/login')) {
-    bot.chat('/login bot123')
-  }
+setInterval(()=>{
+bot.setControlState("jump", true)
 
-})
+setTimeout(()=>{
+bot.setControlState("jump", false)
+},500)
 
-bot.on('spawn', () => {
-  console.log('Bot đã vào server')
-
-  // chống AFK
-  setInterval(() => {
-    bot.setControlState('jump', true)
-    setTimeout(() => bot.setControlState('jump', false), 400)
-  }, 20000)
+},5000)
 
 })
 
-bot.on('end', () => {
-  console.log('Bot bị dis, reconnect sau 20s...')
-  setTimeout(createBot, 20000)
+bot.on("messagestr",(msg)=>{
+if(msg.includes("/register")){
+bot.chat("/register 123123 123123")
+}
+
+if(msg.includes("/login")){
+bot.chat("/login 123123")
+}
 })
 
-bot.on('error', () => {})
+bot.on("end", ()=>{
+console.log("reconnect...")
+setTimeout(createBot,10000)
+})
+
+bot.on("error",()=>{})
 
 }
 
