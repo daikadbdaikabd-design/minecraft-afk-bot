@@ -2,7 +2,7 @@ const mineflayer = require('mineflayer')
 
 const bot = mineflayer.createBot({
   host: "darkblademc.falix.dev",
-  port: 21985,
+  port: 31985,
   username: "_LayerBung_MC",
   version: "1.20.1"
 })
