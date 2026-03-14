@@ -1,36 +1,39 @@
 const mineflayer = require('mineflayer')
+const express = require("express")
+
+const app = express()
+
+app.get("/", (req,res)=>{
+  res.send("Bot Alive")
+})
+
+app.listen(3000)
+
+function createBot(){
 
 const bot = mineflayer.createBot({
   host: "darkblademc.falix.dev",
   port: 31985,
-  username: "_LayerBung_MC",
-  version: "1.20.1"
+  username: "FR333WILL"
 })
 
-const password = "12345678"
+bot.on('spawn', () => {
+  console.log("Bot đã vào server")
 
-bot.once("spawn", () => {
-  console.log("Bot joined")
+  setInterval(() => {
+    bot.setControlState('jump', true)
+    setTimeout(()=>bot.setControlState('jump', false),500)
+  }, 30000)
 
-  // login AuthMe
-  setTimeout(() => {
-    bot.chat(`/login ${password}`)
-    bot.chat(`/register ${password} ${password}`)
-  }, 2000)
-
-  // bắt đầu nhảy
-  setTimeout(() => {
-    setInterval(() => {
-      bot.setControlState("jump", true)
-      setTimeout(() => bot.setControlState("jump", false), 200)
-    }, 1000)
-  }, 5000)
 })
 
-bot.on("kicked", reason => {
-  console.log("Kicked:", reason)
+bot.on('end', () => {
+  console.log("Bot bị thoát -> reconnect sau 10s")
+  setTimeout(createBot, 10000)
 })
 
-bot.on("error", err => {
-  console.log("Error:", err)
-})
+bot.on('error', err => console.log(err))
+
+}
+
+createBot()
