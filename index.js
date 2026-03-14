@@ -1,79 +1,36 @@
-const mineflayer = require("mineflayer")
+const mineflayer = require('mineflayer')
 
-const config = {
-  host: "darkblademc.falix.dev", // IP server
+const bot = mineflayer.createBot({
+  host: "darkblademc.falix.dev",
   port: 21985,
-  username: "YTBPhuongGM_",
-  password: "12345678" // mật khẩu AuthMe
-}
+  username: "_LayerBung_MC",
+  version: "1.20.1"
+})
 
-let bot
+const password = "12345678"
 
-function createBot() {
+bot.once("spawn", () => {
+  console.log("Bot joined")
 
-  console.log("Starting bot...")
+  // login AuthMe
+  setTimeout(() => {
+    bot.chat(`/login ${password}`)
+    bot.chat(`/register ${password} ${password}`)
+  }, 2000)
 
-  bot = mineflayer.createBot({
-    host: config.host,
-    port: config.port,
-    username: config.username
-  })
+  // bắt đầu nhảy
+  setTimeout(() => {
+    setInterval(() => {
+      bot.setControlState("jump", true)
+      setTimeout(() => bot.setControlState("jump", false), 200)
+    }, 1000)
+  }, 5000)
+})
 
-  bot.on("spawn", () => {
-    console.log("Bot joined server")
-  })
+bot.on("kicked", reason => {
+  console.log("Kicked:", reason)
+})
 
-  bot.on("message", (msg) => {
-
-    const text = msg.toString()
-
-    if (text.includes("/register")) {
-
-      bot.chat(`/register ${config.password} ${config.password}`)
-      console.log("Registering...")
-
-    }
-
-    if (text.includes("/login")) {
-
-      bot.chat(`/login ${config.password}`)
-      console.log("Logging in...")
-
-      setTimeout(startJump, 4000)
-    }
-
-  })
-
-  bot.on("end", () => {
-
-    console.log("Bot disconnected. Reconnecting in 10s...")
-
-    setTimeout(createBot, 10000)
-
-  })
-
-  bot.on("error", err => {
-    console.log("Error:", err.message)
-  })
-
-}
-
-function startJump() {
-
-  console.log("AFK jump started")
-
-  setInterval(() => {
-
-    if (!bot.entity) return
-
-    bot.setControlState("jump", true)
-
-    setTimeout(() => {
-      bot.setControlState("jump", false)
-    }, 200)
-
-  }, 1000)
-
-}
-
-createBot()
+bot.on("error", err => {
+  console.log("Error:", err)
+})
