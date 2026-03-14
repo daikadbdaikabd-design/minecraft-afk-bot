@@ -1,55 +1,85 @@
 const mineflayer = require("mineflayer")
 const express = require("express")
 
+let bot = null
+
+function startBot() {
+
+  console.log("Đang khởi động bot...")
+
+  bot = mineflayer.createBot({
+    host: "darkblademc.falix.dev",
+    port: 31985,
+    username: "YTBPhuongGM_",
+    version: "1.20.1"
+  })
+
+  bot.on("login", () => {
+    console.log("Bot đã login server")
+  })
+
+  bot.on("spawn", () => {
+
+    console.log("Bot đã vào world")
+
+    // chống AFK
+    setInterval(() => {
+
+      if (!bot.entity) return
+
+      bot.setControlState("jump", true)
+
+      setTimeout(() => {
+        bot.setControlState("jump", false)
+      }, 300)
+
+    }, 5000)
+
+  })
+
+  bot.on("messagestr", (msg) => {
+
+    if (msg.includes("/register")) {
+      bot.chat("/register bot123 bot123")
+    }
+
+    if (msg.includes("/login")) {
+      bot.chat("/login bot123")
+    }
+
+  })
+
+  bot.on("kicked", (reason) => {
+    console.log("Bot bị kick:", reason)
+  })
+
+  bot.on("error", (err) => {
+    console.log("Lỗi:", err.message)
+  })
+
+  bot.on("end", () => {
+
+    console.log("Bot mất kết nối, reconnect sau 30s...")
+
+    setTimeout(() => {
+      startBot()
+    }, 30000)
+
+  })
+
+}
+
+startBot()
+
+// web server cho UptimeRobot
 const app = express()
 
-app.get("/", (req,res)=>{
+app.get("/", (req, res) => {
   res.send("bot online")
 })
 
-app.listen(3000)
+const PORT = process.env.PORT || 3000
 
-function createBot(){
-
-const bot = mineflayer.createBot({
-  host: "darkblademc.falix.dev",
-  port: 31985,
-  username: "_HuuThien_" + Math.floor(Math.random()*10000),
-  version: "1.20.1"
+app.listen(PORT, () => {
+  console.log("Web server chạy port", PORT)
 })
-
-bot.on("spawn", ()=>{
-
-console.log("bot joined")
-
-setInterval(()=>{
-bot.setControlState("jump", true)
-
-setTimeout(()=>{
-bot.setControlState("jump", false)
-},500)
-
-},5000)
-
-})
-
-bot.on("messagestr",(msg)=>{
-if(msg.includes("/register")){
-bot.chat("/register 123123 123123")
-}
-
-if(msg.includes("/login")){
-bot.chat("/login 123123")
-}
-})
-
-bot.on("end", ()=>{
-console.log("reconnect...")
-setTimeout(createBot,10000)
-})
-
-bot.on("error",()=>{})
-
-}
-
-createBot()
