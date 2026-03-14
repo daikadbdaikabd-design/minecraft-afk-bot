@@ -1,39 +1,85 @@
-const mineflayer = require('mineflayer')
+const mineflayer = require("mineflayer")
 const express = require("express")
 
-const app = express()
+let bot = null
 
-app.get("/", (req,res)=>{
-  res.send("Bot Alive")
-})
+function startBot() {
 
-app.listen(3000)
+  console.log("Đang khởi động bot...")
 
-function createBot(){
+  bot = mineflayer.createBot({
+    host: "darkblademc.falix.dev",
+    port: 31985,
+    username: "FR333WILL",
+    version: "1.20.1"
+  })
 
-const bot = mineflayer.createBot({
-  host: "darkblademc.falix.dev",
-  port: 31985,
-  username: "FR333WILL"
-})
+  bot.on("login", () => {
+    console.log("Bot đã login server")
+  })
 
-bot.on('spawn', () => {
-  console.log("Bot đã vào server")
+  bot.on("spawn", () => {
 
-  setInterval(() => {
-    bot.setControlState('jump', true)
-    setTimeout(()=>bot.setControlState('jump', false),500)
-  }, 30000)
+    console.log("Bot đã vào world")
 
-})
+    // chống AFK
+    setInterval(() => {
 
-bot.on('end', () => {
-  console.log("Bot bị thoát -> reconnect sau 10s")
-  setTimeout(createBot, 10000)
-})
+      if (!bot.entity) return
 
-bot.on('error', err => console.log(err))
+      bot.setControlState("jump", true)
+
+      setTimeout(() => {
+        bot.setControlState("jump", false)
+      }, 300)
+
+    }, 5000)
+
+  })
+
+  bot.on("messagestr", (msg) => {
+
+    if (msg.includes("/register")) {
+      bot.chat("/register bot123 bot123")
+    }
+
+    if (msg.includes("/login")) {
+      bot.chat("/login bot123")
+    }
+
+  })
+
+  bot.on("kicked", (reason) => {
+    console.log("Bot bị kick:", reason)
+  })
+
+  bot.on("error", (err) => {
+    console.log("Lỗi:", err.message)
+  })
+
+  bot.on("end", () => {
+
+    console.log("Bot mất kết nối, reconnect sau 30s...")
+
+    setTimeout(() => {
+      startBot()
+    }, 30000)
+
+  })
 
 }
 
-createBot()
+startBot()
+
+// web server cho UptimeRobot
+const app = express()
+
+app.get("/", (req, res) => {
+  res.send("bot online")
+})
+
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+  console.log("Web server chạy port", PORT)
+})
