@@ -1,85 +1,58 @@
-const mineflayer = require("mineflayer")
-const express = require("express")
+const mineflayer = require('mineflayer')
 
-let bot = null
+const config = {
+  host: "darkblademc.falix.dev", // IP server
+  port: 25565,
+  username: "YTBPhuongGM_",
+  version: "1.20.1"
+}
 
-function startBot() {
+let bot
 
-  console.log("Đang khởi động bot...")
+function createBot() {
 
-  bot = mineflayer.createBot({
-    host: "darkblademc.falix.dev",
-    port: 31985,
-    username: "YTBPhuongGM_",
-    version: "1.20.1"
-  })
+  console.log("Starting bot...")
 
-  bot.on("login", () => {
-    console.log("Bot đã login server")
-  })
+  bot = mineflayer.createBot(config)
 
   bot.on("spawn", () => {
 
-    console.log("Bot đã vào world")
+    console.log("Bot joined server")
 
-    // chống AFK
-    setInterval(() => {
+    startJump()
 
-      if (!bot.entity) return
-
-      bot.setControlState("jump", true)
-
-      setTimeout(() => {
-        bot.setControlState("jump", false)
-      }, 300)
-
-    }, 5000)
-
-  })
-
-  bot.on("messagestr", (msg) => {
-
-    if (msg.includes("/register")) {
-      bot.chat("/register bot123 bot123")
-    }
-
-    if (msg.includes("/login")) {
-      bot.chat("/login bot123")
-    }
-
-  })
-
-  bot.on("kicked", (reason) => {
-    console.log("Bot bị kick:", reason)
-  })
-
-  bot.on("error", (err) => {
-    console.log("Lỗi:", err.message)
   })
 
   bot.on("end", () => {
 
-    console.log("Bot mất kết nối, reconnect sau 30s...")
+    console.log("Bot disconnected. Reconnecting in 10s...")
 
-    setTimeout(() => {
-      startBot()
-    }, 30000)
+    setTimeout(createBot, 10000)
+
+  })
+
+  bot.on("error", (err) => {
+
+    console.log("Error:", err.message)
 
   })
 
 }
 
-startBot()
+function startJump() {
 
-// web server cho UptimeRobot
-const app = express()
+  setInterval(() => {
 
-app.get("/", (req, res) => {
-  res.send("bot online")
-})
+    if (!bot.entity) return
 
-const PORT = process.env.PORT || 3000
+    bot.setControlState("jump", true)
 
-app.listen(PORT, () => {
-  console.log("Web server chạy port", PORT)
-})
+    setTimeout(() => {
+      bot.setControlState("jump", false)
+    }, 200)
+
+  }, 1000)
+
+}
+
+createBot()
