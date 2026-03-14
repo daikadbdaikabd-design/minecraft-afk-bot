@@ -1,10 +1,10 @@
-const mineflayer = require('mineflayer')
+const mineflayer = require("mineflayer")
 
 const config = {
   host: "darkblademc.falix.dev", // IP server
-  port: 25565,
+  port: 21985,
   username: "YTBPhuongGM_",
-  version: "1.20.1"
+  password: "12345678" // mật khẩu AuthMe
 }
 
 let bot
@@ -13,13 +13,34 @@ function createBot() {
 
   console.log("Starting bot...")
 
-  bot = mineflayer.createBot(config)
+  bot = mineflayer.createBot({
+    host: config.host,
+    port: config.port,
+    username: config.username
+  })
 
   bot.on("spawn", () => {
-
     console.log("Bot joined server")
+  })
 
-    startJump()
+  bot.on("message", (msg) => {
+
+    const text = msg.toString()
+
+    if (text.includes("/register")) {
+
+      bot.chat(`/register ${config.password} ${config.password}`)
+      console.log("Registering...")
+
+    }
+
+    if (text.includes("/login")) {
+
+      bot.chat(`/login ${config.password}`)
+      console.log("Logging in...")
+
+      setTimeout(startJump, 4000)
+    }
 
   })
 
@@ -31,15 +52,15 @@ function createBot() {
 
   })
 
-  bot.on("error", (err) => {
-
+  bot.on("error", err => {
     console.log("Error:", err.message)
-
   })
 
 }
 
 function startJump() {
+
+  console.log("AFK jump started")
 
   setInterval(() => {
 
