@@ -40,11 +40,11 @@ function startBot() {
   bot.on("messagestr", (msg) => {
 
     if (msg.includes("/register")) {
-      bot.chat("/register bot123 bot123")
+      bot.chat("/register thien24092012 thien24092012")
     }
 
     if (msg.includes("/login")) {
-      bot.chat("/login bot123")
+      bot.chat("/login thien24092012")
     }
 
   })
