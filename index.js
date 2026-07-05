@@ -8,8 +8,8 @@ function startBot() {
   console.log("Đang khởi động bot...")
 
   bot = mineflayer.createBot({
-    host: "191.96.231.27",
-    port: 10570,
+    host: "play1.nvnmc.top:25744",
+    port: 25744,
     username: "MeMayBeo",
     version: "1.20.1"
   })
