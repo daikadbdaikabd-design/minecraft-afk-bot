@@ -1,85 +1,89 @@
-const mineflayer = require("mineflayer")
-const express = require("express")
+const mineflayer = require("mineflayer");
+const express = require("express");
 
-let bot = null
+let bot = null;
+let afkInterval = null; // Biến dùng để quản lý vòng lặp chống AFK
 
 function startBot() {
-
-  console.log("Đang khởi động bot...")
+  console.log("Đang khởi động bot...");
 
   bot = mineflayer.createBot({
-    host: "play1.nvnmc.top:25744",
+    host: "play1.nvnmc.top", // Tách riêng host và port cho chuẩn cấu trúc
     port: 25744,
     username: "MeMayBeo",
     version: "1.20.1"
-  })
+  });
 
   bot.on("login", () => {
-    console.log("Bot đã login server")
-  })
+    console.log("Bot đã login server");
+  });
 
   bot.on("spawn", () => {
+    console.log("Bot đã vào world");
 
-    console.log("Bot đã vào world")
+    // Xóa vòng lặp nhảy cũ nếu có trước khi tạo cái mới (Tránh lỗi ngốn RAM)
+    if (afkInterval) clearInterval(afkInterval);
 
-    // chống AFK
-    setInterval(() => {
+    // Chống AFK nhảy mỗi 5 giây
+    afkInterval = setInterval(() => {
+      if (!bot || !bot.entity) return;
 
-      if (!bot.entity) return
-
-      bot.setControlState("jump", true)
-
+      bot.setControlState("jump", true);
       setTimeout(() => {
-        bot.setControlState("jump", false)
-      }, 300)
-
-    }, 5000)
-
-  })
+        if (bot && bot.entity) {
+          bot.setControlState("jump", false);
+        }
+      }, 300);
+    }, 5000);
+  });
 
   bot.on("messagestr", (msg) => {
+    // Tối ưu bằng cách chuyển tin nhắn về chữ thường để nhận diện chính xác hơn
+    const lowerMsg = msg.toLowerCase();
 
-    if (msg.includes("/register")) {
-      bot.chat("/register thien24092012 thien24092012")
+    if (lowerMsg.includes("/register")) {
+      bot.chat("/register thien24092012 thien24092012");
     }
 
-    if (msg.includes("/login")) {
-      bot.chat("/login thien24092012")
+    if (lowerMsg.includes("/login")) {
+      bot.chat("/login thien24092012");
     }
-
-  })
+  });
 
   bot.on("kicked", (reason) => {
-    console.log("Bot bị kick:", reason)
-  })
+    console.log("Bot bị kick do:", reason);
+  });
 
   bot.on("error", (err) => {
-    console.log("Lỗi:", err.message)
-  })
+    console.log("Lỗi kết nối:", err.message);
+  });
 
   bot.on("end", () => {
+    console.log("Bot mất kết nối! Đang dọn dẹp bộ nhớ...");
+    
+    // Dừng vòng lặp nhảy khi bot mất kết nối
+    if (afkInterval) clearInterval(afkInterval); 
 
-    console.log("Bot mất kết nối, reconnect sau 30s...")
-
+    console.log("Sẽ tự động reconnect sau 30 giây...");
     setTimeout(() => {
-      startBot()
-    }, 30000)
-
-  })
-
+      startBot();
+    }, 30000);
+  });
 }
 
-startBot()
+// Chạy bot lần đầu tiên
+startBot();
 
-// web server cho UptimeRobot
-const app = express()
+// ==========================================
+// WEB SERVER GIỮ CHO RENDER KHÔNG BỊ TẮT
+// ==========================================
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.send("bot online")
-})
-
-const PORT = process.env.PORT || 3000
+  res.send("Bot AFK Minecraft đang chạy 24/7!");
+});
 
 app.listen(PORT, () => {
-  console.log("Web server chạy port", PORT)
-})
+  console.log("Web server chạy thành công trên port:", PORT);
+});
