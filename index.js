@@ -8,8 +8,8 @@ function startBot() {
   console.log("Đang khởi động bot...");
 
   bot = mineflayer.createBot({
-    host: "play1.nvnmc.top", // Tách riêng host và port cho chuẩn cấu trúc
-    port: 25744,
+    host: "free-3.mcservers.in:25625", // Tách riêng host và port cho chuẩn cấu trúc
+    port: 25625,
     username: "MeMayBeo",
     version: "1.20.1"
   });
